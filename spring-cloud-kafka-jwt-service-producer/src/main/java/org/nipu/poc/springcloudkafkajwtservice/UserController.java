@@ -50,10 +50,11 @@ public class UserController {
         }
         OAuth2AuthenticationDetails authenticationDetails = (OAuth2AuthenticationDetails) ((OAuth2Authentication) principal).getDetails();
         log.info("Authentication Details is {}", authenticationDetails);
-        log.info("Token Value is {}", authenticationDetails.getTokenValue());
-        Jwt jwt = JwtHelper.decode(authenticationDetails.getTokenValue());
+        final String tokenValue = authenticationDetails.getTokenValue();
+        log.info("Token Value is {}", tokenValue);
+        Jwt jwt = JwtHelper.decode(tokenValue);
         log.info("JWT is {}", jwt);
-        sender.send(MESSAGING_TOPIC, new MessageContainer<>(String.valueOf(jwt)));
+        sender.send(MESSAGING_TOPIC, new MessageContainer<>(String.valueOf(tokenValue)));
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
