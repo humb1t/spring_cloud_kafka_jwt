@@ -13,7 +13,7 @@ public class Receiver {
     private CountDownLatch latch = new CountDownLatch(1);
 
     @KafkaListener(topics = "${spring.kafka.topic.messaging}")
-    public void receive(MessageDto payload) {
+    public void receive(MessageContainer payload) {
         LOGGER.info("received payload='{}'", payload);
         latch.countDown();
     }

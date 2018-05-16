@@ -1,4 +1,5 @@
 package org.nipu.poc.springcloudkafkajwtservice.messaging;
 
-public class MessageDto {
+public enum HeaderTypes {
+    JWT
 }

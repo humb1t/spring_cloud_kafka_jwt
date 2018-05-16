@@ -1,4 +1,4 @@
-package org.nipu.poc.springcloudkafkajwtauth.messaging;
+package org.nipu.poc.springcloudkafkajwtservice.messaging;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +10,9 @@ public class Sender {
     private static final Logger LOGGER = LoggerFactory.getLogger(Sender.class);
 
     @Autowired
-    private KafkaTemplate<String, MessageDto> kafkaTemplate;
+    private KafkaTemplate<String, MessageContainer> kafkaTemplate;
 
-    public void send(String topic, MessageDto payload) {
+    public void send(String topic, MessageContainer payload) {
         LOGGER.info("sending payload='{}' to topic='{}'", payload, topic);
         kafkaTemplate.send(topic, payload);
     }

@@ -1,4 +1,5 @@
-package org.nipu.poc.springcloudkafkajwtauth.messaging;
+package org.nipu.poc.springcloudkafkajwtservice.messaging;
+
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +30,12 @@ public class ProducerConfiguration {
     }
 
     @Bean
-    public ProducerFactory<String, MessageDto> producerFactory() {
+    public ProducerFactory<String, MessageContainer> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
-    public KafkaTemplate<String, MessageDto> kafkaTemplate() {
+    public KafkaTemplate<String, MessageContainer> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
