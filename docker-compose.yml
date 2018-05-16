@@ -1,11 +1,15 @@
 version: '3'
 services:
-  kafka:
-    image: spotify/kafka
-    hostname: kafka
-    environment:
-      ADVERTISED_HOST: kafka
-      ADVERTISED_PORT: 9092
+  zookeeper:
+    image: zookeeper
     ports:
-    - "9092:9092"
-    - "2181:2181"
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    links:
+     - zookeeper
