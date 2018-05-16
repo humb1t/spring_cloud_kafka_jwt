@@ -3,3 +3,7 @@ server:
 spring:
   application:
     name: auth-server
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:127.0.0.1:9092}
+    topic:
+      messaging: messaging

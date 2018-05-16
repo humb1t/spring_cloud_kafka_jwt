@@ -3,3 +3,9 @@ server:
 spring:
   application:
     name: resource-service
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:127.0.0.1:9092}
+    topic:
+      messaging: messaging
+    consumer:
+      group-id: messaging_consumer
