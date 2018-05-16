@@ -2,6 +2,7 @@ package org.nipu.poc.springcloudkafkajwtservice.messaging;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.nipu.poc.springcloudkafkajwtservice.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +39,8 @@ public class ConsumerConfiguration {
     @Autowired
     private DefaultTokenServices tokenServices;
     private String resourceId = null;
+    @Autowired
+    private UserController userController;
 
 
     @Bean
@@ -68,7 +71,7 @@ public class ConsumerConfiguration {
 
     @Bean
     public Receiver receiver() {
-        return new Receiver(new KafkaAuthenticationManager());
+        return new Receiver(new KafkaAuthenticationManager(), userController);
     }
 
     public class KafkaAuthenticationManager implements AuthenticationManager {

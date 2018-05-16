@@ -1,5 +1,7 @@
 package org.nipu.poc.springcloudkafkajwtservice.messaging;
 
+import org.nipu.poc.springcloudkafkajwtservice.User;
+import org.nipu.poc.springcloudkafkajwtservice.UserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -22,11 +24,14 @@ public class Receiver {
     private static final Logger LOGGER = LoggerFactory.getLogger(Receiver.class);
 
     private final AuthenticationManager authenticationManager;
+    private final UserController userController;
     private CountDownLatch latch = new CountDownLatch(1);
     private AuthenticationEventPublisher eventPublisher = new Receiver.NullEventPublisher();
 
-    public Receiver(AuthenticationManager authenticationManager) {
+    public Receiver(AuthenticationManager authenticationManager,
+                    UserController userController) {
         this.authenticationManager = authenticationManager;
+        this.userController = userController;
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.messaging}")
@@ -52,6 +57,8 @@ public class Receiver {
             eventPublisher.publishAuthenticationSuccess(authResult);
             SecurityContextHolder.getContext().setAuthentication(authResult);
         }
+        LOGGER.info("Try to call unsecured API: {}", userController.register(new User("Test", "Test")));
+        LOGGER.info("Try to call secured API: {}", userController.getAll());
         latch.countDown();
     }
 
