@@ -2,7 +2,7 @@ package org.nipu.poc.springcloudkafkajwtservice.messaging;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.nipu.poc.springcloudkafkajwtservice.UserController;
+import org.nipu.poc.springcloudkafkajwtservice.SecurityCheckController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedExc
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationManager;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 
 import java.util.Collection;
@@ -40,7 +39,7 @@ public class ConsumerConfiguration {
     private DefaultTokenServices tokenServices;
     private String resourceId = null;
     @Autowired
-    private UserController userController;
+    private SecurityCheckController securityCheckController;
 
 
     @Bean
@@ -71,7 +70,7 @@ public class ConsumerConfiguration {
 
     @Bean
     public Receiver receiver() {
-        return new Receiver(new KafkaAuthenticationManager(), userController);
+        return new Receiver(new KafkaAuthenticationManager(), securityCheckController);
     }
 
     public class KafkaAuthenticationManager implements AuthenticationManager {
