@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -95,11 +96,21 @@ public class Receiver {
     }
 
     private void checkCurrentContext(PreAuthenticatedAuthenticationToken authentication) {
-        if (authentication == null) {
-            //TODO: clear SecurityContext as in C:/Users/Nikita_Puzankov/.m2/repository/org/springframework/security/oauth/spring-security-oauth2/2.0.14.RELEASE/spring-security-oauth2-2.0.14.RELEASE-sources.jar!/org/springframework/security/oauth2/provider/authentication/OAuth2AuthenticationProcessingFilter.java:135
-            LOGGER.info("Should check and clean current context");
+        LOGGER.info("Should check and clean current context");
+        if (this.isAuthenticated()){
+            LOGGER.info("SecurityContext contain authenticated user in current thread");
+            SecurityContextHolder.clearContext();
+            LOGGER.info("SecurityContext cleaned up");
         }
     }
+
+    private boolean isAuthenticated() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			return false;
+		}
+		return true;
+	}
 
     private class NullEventPublisher implements AuthenticationEventPublisher {
         @Override
@@ -112,4 +123,5 @@ public class Receiver {
             LOGGER.info("publishAuthenticationSuccess: {} \n because of: {}", authentication, exception);
         }
     }
+
 }
