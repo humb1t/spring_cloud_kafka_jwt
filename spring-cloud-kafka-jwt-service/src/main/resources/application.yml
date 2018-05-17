@@ -1,0 +1,11 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: resource-service
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
+    topic:
+      messaging: messaging
+    consumer:
+      group-id: messaging_consumer

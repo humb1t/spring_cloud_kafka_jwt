@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.nipu.poc</groupId>
-    <artifactId>spring-cloud-kafka-jwt-service</artifactId>
+    <artifactId>spring-cloud-kafka-jwt-service-producer</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>spring-cloud-kafka-jwt-service</name>
+    <name>spring-cloud-kafka-jwt-service-producer</name>
     <description>Demo project for Spring Boot</description>
 
     <parent>
