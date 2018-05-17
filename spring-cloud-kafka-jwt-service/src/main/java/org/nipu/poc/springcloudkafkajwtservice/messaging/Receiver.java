@@ -13,7 +13,6 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 public class Receiver {
@@ -36,13 +35,7 @@ public class Receiver {
         LOGGER.info("received payload='{}'", payload);
         final String tokenValue = (String) payload.getMessage();
         LOGGER.info("Token value {}", tokenValue);
-        if (Objects.isNull(tokenValue) || "unauthorized".equals(tokenValue)) {
-            try {
-                LOGGER.info("Try to call unprotected API: {}", securityCheckController.doNotCheck());
-            } catch (Exception e) {
-                LOGGER.info("Exception caught during request to unprotected API: {}", e);
-            }
-        } else {
+        if (tokenValue != null && !"unauthorized".equals(tokenValue)) {
             //We make an assumption that jwt is verified before pushing message to Kafka
             //And we don't verify it here (for example it may be expired because of service unavailability)
             final Jwt jwt = JwtHelper.decode(tokenValue);
@@ -54,6 +47,7 @@ public class Receiver {
             LOGGER.info("Authentication: {}", authentication);
             checkCurrentContext(authentication);
             if (authentication != null) {
+                //TODO: provide details to support usage of OAuth2Authentication programmatically
             /*if (authentication instanceof AbstractAuthenticationToken) {
                 AbstractAuthenticationToken needsDetails = (AbstractAuthenticationToken) authentication;
                 LOGGER.info("Authentication token {} \n needs details", needsDetails);
@@ -63,21 +57,31 @@ public class Receiver {
                 eventPublisher.publishAuthenticationSuccess(authResult);
                 SecurityContextHolder.getContext().setAuthentication(authResult);
             }
-            try {
-                LOGGER.info("Try to call unprotected API: {}", securityCheckController.doNotCheck());
-            } catch (Exception e) {
-                LOGGER.info("Exception caught during request to unprotected API: {}", e);
-            }
-            try {
-                LOGGER.info("Try to call secured user API: {}", securityCheckController.checkUserRole());
-            } catch (Exception e) {
-                LOGGER.info("Exception caught during request to user protected API: {}", e);
-            }
-            try {
-                LOGGER.info("Try to call secured admin API: {}", securityCheckController.checkAdminRole());
-            } catch (Exception e) {
-                LOGGER.info("Exception caught during request to admin protected API: {}", e);
-            }
+        }
+        try {
+            LOGGER.info("Try to call unprotected API: {}", securityCheckController.doNotCheck());
+        } catch (Exception e) {
+            LOGGER.info("Exception caught during request to unprotected API: {}", e);
+        }
+        try {
+            LOGGER.info("Try to call secured user API: {}", securityCheckController.checkUserRole());
+        } catch (Exception e) {
+            LOGGER.info("Exception caught during request to user protected API: {}", e);
+        }
+        try {
+            LOGGER.info("Try to call secured admin API: {}", securityCheckController.checkAdminRole());
+        } catch (Exception e) {
+            LOGGER.info("Exception caught during request to admin protected API: {}", e);
+        }
+        try {
+            LOGGER.info("Try to call ant matcher secured API: {}", securityCheckController.checkAuthorization());
+        } catch (Exception e) {
+            LOGGER.info("Exception caught during request to ant matcher protected API: {}", e);
+        }
+        try {
+            LOGGER.info("Try to call OAuth2Authentication depended API: {}", securityCheckController.checkSecurityExpectations());
+        } catch (Exception e) {
+            LOGGER.info("Exception caught during request to OAuth2Authentication depended API: {}", e);
         }
         latch.countDown();
     }
