@@ -40,6 +40,7 @@ public class ConsumerConfiguration {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "10");
 
         return props;
     }
@@ -55,6 +56,7 @@ public class ConsumerConfiguration {
         ConcurrentKafkaListenerContainerFactory<String, MessageContainer> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setBatchListener(true);
 
         return factory;
     }
