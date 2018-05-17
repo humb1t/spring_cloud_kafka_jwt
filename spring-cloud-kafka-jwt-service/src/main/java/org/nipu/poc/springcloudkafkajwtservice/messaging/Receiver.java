@@ -4,6 +4,7 @@ import org.nipu.poc.springcloudkafkajwtservice.SecurityCheckController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -11,6 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import java.util.concurrent.CountDownLatch;
@@ -48,10 +50,11 @@ public class Receiver {
             checkCurrentContext(authentication);
             if (authentication != null) {
                 //TODO: provide details to support usage of OAuth2Authentication programmatically
-            /*if (authentication instanceof AbstractAuthenticationToken) {
-                AbstractAuthenticationToken needsDetails = (AbstractAuthenticationToken) authentication;
-                LOGGER.info("Authentication token {} \n needs details", needsDetails);
-            }*/
+                if (authentication instanceof AbstractAuthenticationToken) {
+                    AbstractAuthenticationToken needsDetails = (AbstractAuthenticationToken) authentication;
+                    needsDetails.setDetails(buildDetails(jwt, authentication));
+                    LOGGER.info("Authentication token {} \n needs details", needsDetails);
+                }
                 Authentication authResult = authenticationManager.authenticate(authentication);
                 LOGGER.info("Authentication success: {}", authResult);
                 eventPublisher.publishAuthenticationSuccess(authResult);
@@ -84,6 +87,11 @@ public class Receiver {
             LOGGER.info("Exception caught during request to OAuth2Authentication depended API: {}", e);
         }
         latch.countDown();
+    }
+
+    private OAuth2AuthenticationDetails buildDetails(Jwt jwt, PreAuthenticatedAuthenticationToken authentication) {
+        JwtKafkaRequestStub jwtKafkaRequestStub = new JwtKafkaRequestStub(jwt);
+        return new OAuth2AuthenticationDetails(jwtKafkaRequestStub);
     }
 
     private void checkCurrentContext(PreAuthenticatedAuthenticationToken authentication) {

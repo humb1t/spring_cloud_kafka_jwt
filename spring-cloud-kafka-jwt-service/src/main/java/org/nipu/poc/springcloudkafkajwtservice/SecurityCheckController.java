@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +51,8 @@ public class SecurityCheckController {
         log.info("OAuth2 authentication: {} ", oAuth2Authentication);
         OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
         log.info("OAuth2 authentication details: {} ", details);
+        Jwt jwt = JwtHelper.decode(details.getTokenValue());
+        log.info("Decoded jwt token is {}", jwt);
         return "Security check passed";
     }
 
