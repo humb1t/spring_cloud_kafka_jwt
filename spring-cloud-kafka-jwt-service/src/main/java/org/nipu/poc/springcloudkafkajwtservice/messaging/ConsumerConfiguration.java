@@ -12,16 +12,8 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +29,6 @@ public class ConsumerConfiguration {
 
     @Autowired
     private DefaultTokenServices tokenServices;
-    private String resourceId = null;
     @Autowired
     private SecurityCheckController securityCheckController;
 
@@ -70,41 +61,8 @@ public class ConsumerConfiguration {
 
     @Bean
     public Receiver receiver() {
-        return new Receiver(new KafkaAuthenticationManager(), securityCheckController);
-    }
-
-    public class KafkaAuthenticationManager implements AuthenticationManager {
-        @Override
-        public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-            if (authentication == null) {
-                throw new InvalidTokenException("Invalid token (token not found)");
-            }
-            String token = (String) authentication.getPrincipal();
-            OAuth2Authentication auth = tokenServices.loadAuthentication(token);
-            if (auth == null) {
-                throw new InvalidTokenException("Invalid token: " + token);
-            }
-            Collection<String> resourceIds = auth.getOAuth2Request().getResourceIds();
-            if (resourceId != null && resourceIds != null && !resourceIds.isEmpty() && !resourceIds.contains(resourceId)) {
-                throw new OAuth2AccessDeniedException("Invalid token does not contain resource id (" + resourceId + ")");
-            }
-            checkClientDetails(auth);
-            if (authentication.getDetails() instanceof OAuth2AuthenticationDetails) {
-                OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
-                // Guard against a cached copy of the same details
-                if (!details.equals(auth.getDetails())) {
-                    // Preserve the authentication details from the one loaded by token services
-                    details.setDecodedDetails(auth.getDetails());
-                }
-            }
-            auth.setDetails(authentication.getDetails());
-            auth.setAuthenticated(true);
-            return auth;
-        }
+        return new Receiver(new KafkaAuthenticationManager(tokenServices), securityCheckController);
     }
 
 
-    private void checkClientDetails(OAuth2Authentication auth) {
-
-    }
 }
